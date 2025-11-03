@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+  id="Definitions_Observantia" 
+  targetNamespace="http://bpmn.io/schema/bpmn">
+  
+  <bpmn:collaboration id="Collaboration_IFPE">
+    <bpmn:participant id="Participant_Campus" name="Campus" processRef="Process_Campus" />
+    <bpmn:participant id="Participant_Reitoria" name="Reitoria" processRef="Process_Reitoria" />
+    <bpmn:messageFlow id="MsgFlow_1" sourceRef="Task_RevisarDoc" targetRef="Task_AnalisarJuridica" />
+    <bpmn:messageFlow id="MsgFlow_2" sourceRef="Task_SolicitarAjustes" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:messageFlow id="MsgFlow_3" sourceRef="Task_VerificarConf" targetRef="Task_Aprovar" />
+    <bpmn:messageFlow id="MsgFlow_4" sourceRef="Task_NotificarPendencias" targetRef="Task_ComplementarInformacoes" />
+  </bpmn:collaboration>
+  
+  <bpmn:process id="Process_Campus" name="Processo Campus" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Campus">
+      <bpmn:lane id="Lane_Requisitante" name="Requisitante">
+        <bpmn:flowNodeRef>Event_Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegistrarDemanda</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ComplementarInformacoes</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sistema" name="Sistema Observantia">
+        <bpmn:flowNodeRef>Task_ValidarCampos</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AplicarTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ChecklistConformidade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerificarLegislacao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GerarRelatorio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotificarPendencias</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GerarDocFinal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegistrarHistorico</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Coordenador" name="Coordenador de Contratos">
+        <bpmn:flowNodeRef>Task_ElaborarMinuta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RevisarDoc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CorrigirNaoConf</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Gestor" name="Gestor / Aprovador">
+        <bpmn:flowNodeRef>Task_Aprovar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Aprovacao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublicarSEI</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_End</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    
+    <bpmn:startEvent id="Event_Start" name="Nova demanda">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:task id="Task_RegistrarDemanda" name="Registrar demanda no Observantia">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_ValidarCampos" name="Validar campos obrigatórios">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_AplicarTemplate" name="Aplicar template padronizado">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_ElaborarMinuta" name="Elaborar minuta do documento">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_ChecklistConformidade" name="Executar checklist de conformidade">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_VerificarLegislacao" name="Verificar Lei 14.133/2021 e normas IFPE">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_GerarRelatorio" name="Gerar relatório de conformidade">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_RevisarDoc" name="Revisar documento com base no relatório">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_Correcao</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_CorrigirNaoConf" name="Corrigir não conformidades">
+      <bpmn:incoming>Flow_Complementar</bpmn:incoming>
+      <bpmn:incoming>Flow_Reprovado</bpmn:incoming>
+      <bpmn:outgoing>Flow_Correcao</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_NotificarPendencias" name="Notificar pendências">
+      <bpmn:incoming>Flow_NaoConforme</bpmn:incoming>
+      <bpmn:outgoing>Flow_Notificar</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_ComplementarInformacoes" name="Complementar informações">
+      <bpmn:incoming>Flow_Notificar</bpmn:incoming>
+      <bpmn:outgoing>Flow_Complementar</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_Aprovar" name="Aprovar documento">
+      <bpmn:incoming>Flow_Conforme</bpmn:incoming>
+      <bpmn:outgoing>Flow_ParaGateway</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:exclusiveGateway id="Gateway_Aprovacao" name="Aprovado?">
+      <bpmn:incoming>Flow_ParaGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_Aprovado</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Reprovado</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:task id="Task_GerarDocFinal" name="Gerar PDF assinável">
+      <bpmn:incoming>Flow_Aprovado</bpmn:incoming>
+      <bpmn:outgoing>Flow_GerarPara</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_PublicarSEI" name="Publicar no SEI">
+      <bpmn:incoming>Flow_GerarPara</bpmn:incoming>
+      <bpmn:outgoing>Flow_PublicarPara</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_RegistrarHistorico" name="Registrar histórico e versionamento">
+      <bpmn:incoming>Flow_PublicarPara</bpmn:incoming>
+      <bpmn:outgoing>Flow_Final</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:endEvent id="Event_End" name="Documento publicado">
+      <bpmn:incoming>Flow_Final</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Event_Start" targetRef="Task_RegistrarDemanda" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RegistrarDemanda" targetRef="Task_ValidarCampos" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ValidarCampos" targetRef="Task_AplicarTemplate" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_AplicarTemplate" targetRef="Task_ElaborarMinuta" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ElaborarMinuta" targetRef="Task_ChecklistConformidade" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_ChecklistConformidade" targetRef="Task_VerificarLegislacao" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_VerificarLegislacao" targetRef="Task_GerarRelatorio" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_GerarRelatorio" targetRef="Task_RevisarDoc" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_RevisarDoc" targetRef="Task_RevisarDoc" />
+    <bpmn:sequenceFlow id="Flow_Correcao" sourceRef="Task_CorrigirNaoConf" targetRef="Task_RevisarDoc" />
+    <bpmn:sequenceFlow id="Flow_Notificar" sourceRef="Task_NotificarPendencias" targetRef="Task_ComplementarInformacoes" />
+    <bpmn:sequenceFlow id="Flow_Complementar" sourceRef="Task_ComplementarInformacoes" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:sequenceFlow id="Flow_Conforme" sourceRef="Task_Aprovar" targetRef="Task_Aprovar" />
+    <bpmn:sequenceFlow id="Flow_ParaGateway" sourceRef="Task_Aprovar" targetRef="Gateway_Aprovacao" />
+    <bpmn:sequenceFlow id="Flow_Aprovado" name="Sim" sourceRef="Gateway_Aprovacao" targetRef="Task_GerarDocFinal" />
+    <bpmn:sequenceFlow id="Flow_Reprovado" name="Não" sourceRef="Gateway_Aprovacao" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:sequenceFlow id="Flow_GerarPara" sourceRef="Task_GerarDocFinal" targetRef="Task_PublicarSEI" />
+    <bpmn:sequenceFlow id="Flow_PublicarPara" sourceRef="Task_PublicarSEI" targetRef="Task_RegistrarHistorico" />
+    <bpmn:sequenceFlow id="Flow_Final" sourceRef="Task_RegistrarHistorico" targetRef="Event_End" />
+    <bpmn:sequenceFlow id="Flow_NaoConforme" sourceRef="Task_NotificarPendencias" targetRef="Task_NotificarPendencias" />
+  </bpmn:process>
+  
+  <bpmn:process id="Process_Reitoria" name="Processo Reitoria" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Reitoria">
+      <bpmn:lane id="Lane_Procuradoria" name="Procuradoria Jurídica">
+        <bpmn:flowNodeRef>Task_AnalisarJuridica</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Parecer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SolicitarAjustes</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Auditoria" name="Auditoria Interna">
+        <bpmn:flowNodeRef>Task_VerificarConf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Conformidade</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    
+    <bpmn:task id="Task_AnalisarJuridica" name="Realizar análise jurídica">
+      <bpmn:incoming>Flow_R1</bpmn:incoming>
+      <bpmn:outgoing>Flow_R2</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:exclusiveGateway id="Gateway_Parecer" name="Parecer aprovado?">
+      <bpmn:incoming>Flow_R2</bpmn:incoming>
+      <bpmn:outgoing>Flow_R3_Sim</bpmn:outgoing>
+      <bpmn:outgoing>Flow_R3_Nao</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:task id="Task_SolicitarAjustes" name="Solicitar ajustes via Observantia">
+      <bpmn:incoming>Flow_R3_Nao</bpmn:incoming>
+      <bpmn:outgoing>Flow_R4</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:task id="Task_VerificarConf" name="Verificar conformidade final">
+      <bpmn:incoming>Flow_R3_Sim</bpmn:incoming>
+      <bpmn:outgoing>Flow_R5</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:exclusiveGateway id="Gateway_Conformidade" name="Conforme?">
+      <bpmn:incoming>Flow_R5</bpmn:incoming>
+      <bpmn:outgoing>Flow_R6_Sim</bpmn:outgoing>
+      <bpmn:outgoing>Flow_R6_Nao</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:sequenceFlow id="Flow_R1" sourceRef="Task_AnalisarJuridica" targetRef="Task_AnalisarJuridica" />
+    <bpmn:sequenceFlow id="Flow_R2" sourceRef="Task_AnalisarJuridica" targetRef="Gateway_Parecer" />
+    <bpmn:sequenceFlow id="Flow_R3_Sim" name="Sim" sourceRef="Gateway_Parecer" targetRef="Task_VerificarConf" />
+    <bpmn:sequenceFlow id="Flow_R3_Nao" name="Não" sourceRef="Gateway_Parecer" targetRef="Task_SolicitarAjustes" />
+    <bpmn:sequenceFlow id="Flow_R4" sourceRef="Task_SolicitarAjustes" targetRef="Task_SolicitarAjustes" />
+    <bpmn:sequenceFlow id="Flow_R5" sourceRef="Task_VerificarConf" targetRef="Gateway_Conformidade" />
+    <bpmn:sequenceFlow id="Flow_R6_Sim" name="Sim" sourceRef="Gateway_Conformidade" targetRef="Gateway_Conformidade" />
+    <bpmn:sequenceFlow id="Flow_R6_Nao" name="Não" sourceRef="Gateway_Conformidade" targetRef="Gateway_Conformidade" />
+  </bpmn:process>
+  
+  <bpmndi:BPMNDiagram id="Diagram_1">
+    <bpmndi:BPMNPlane id="Plane_1" bpmnElement="Collaboration_IFPE">
+      
+      <bpmndi:BPMNShape id="Participant_Campus_di" bpmnElement="Participant_Campus" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="3800" height="600" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Requisitante_di" bpmnElement="Lane_Requisitante" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="3770" height="120" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Sistema_di" bpmnElement="Lane_Sistema" isHorizontal="true">
+        <dc:Bounds x="150" y="200" width="3770" height="150" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Coordenador_di" bpmnElement="Lane_Coordenador" isHorizontal="true">
+        <dc:Bounds x="150" y="350" width="3770" height="150" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Gestor_di" bpmnElement="Lane_Gestor" isHorizontal="true">
+        <dc:Bounds x="150" y="500" width="3770" height="180" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_Reitoria_di" bpmnElement="Participant_Reitoria" isHorizontal="true">
+        <dc:Bounds x="120" y="720" width="3800" height="300" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Procuradoria_di" bpmnElement="Lane_Procuradoria" isHorizontal="true">
+        <dc:Bounds x="150" y="720" width="3770" height="150" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Lane_Auditoria_di" bpmnElement="Lane_Auditoria" isHorizontal="true">
+        <dc:Bounds x="150" y="870" width="3770" height="150" />
+      </bpmndi:BPMNShape>
+      
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Observantia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_IFPE">
+    <bpmn:participant id="Participant_Campus" name="Campus" processRef="Process_Campus" />
+    <bpmn:participant id="Participant_Reitoria" name="Reitoria" processRef="Process_Reitoria" />
+    <bpmn:messageFlow id="Flow_CampusToReitoria1" sourceRef="Task_RevisarDoc" targetRef="Task_AnalisarJuridica" />
+    <bpmn:messageFlow id="Flow_ReitoriaToAuditoria" sourceRef="Task_SolicitarAjustes" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:messageFlow id="Flow_ReitoriaToAuditoria2" sourceRef="Gateway_Parecer" targetRef="Task_VerificarConf" />
+    <bpmn:messageFlow id="Flow_AuditoriaToGestor" sourceRef="Gateway_Conformidade" targetRef="Task_Aprovar" />
+    <bpmn:messageFlow id="Flow_NotificacaoRequisitante" sourceRef="Task_NotificarPendencias" targetRef="Task_ComplementarInformacoes" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Campus" name="Processo Campus" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Campus">
+      <bpmn:lane id="Lane_Requisitante" name="Requisitante">
+        <bpmn:flowNodeRef>StartEvent_NovaDemanda</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegistrarDemanda</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ComplementarInformacoes</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sistema" name="Sistema Observantia">
+        <bpmn:flowNodeRef>Task_ValidarCampos</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AplicarTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ChecklistConformidade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerificarLegislacao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GerarRelatorio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotificarPendencias</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GerarDocFinal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegistrarHistorico</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Coordenador" name="Coordenador de Contratos">
+        <bpmn:flowNodeRef>Task_ElaborarMinuta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RevisarDoc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CorrigirNaoConf</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Gestor" name="Gestor / Aprovador">
+        <bpmn:flowNodeRef>Task_Aprovar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AprovFinal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublicarSEI</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Publicado</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_NovaDemanda" name="Nova demanda" />
+    <bpmn:task id="Task_RegistrarDemanda" name="Registrar demanda no Observantia" />
+    <bpmn:task id="Task_ValidarCampos" name="Validar campos obrigatórios" />
+    <bpmn:task id="Task_AplicarTemplate" name="Aplicar template padronizado" />
+    <bpmn:task id="Task_ElaborarMinuta" name="Elaborar minuta do documento" />
+    <bpmn:task id="Task_ChecklistConformidade" name="Executar checklist de conformidade" />
+    <bpmn:task id="Task_VerificarLegislacao" name="Verificar Lei 14.133/2021 e normas IFPE" />
+    <bpmn:task id="Task_GerarRelatorio" name="Gerar relatório de conformidade" />
+    <bpmn:task id="Task_RevisarDoc" name="Revisar documento com base no relatório" />
+    <bpmn:task id="Task_CorrigirNaoConf" name="Corrigir não conformidades" />
+    <bpmn:task id="Task_NotificarPendencias" name="Notificar pendências" />
+    <bpmn:task id="Task_Aprovar" name="Aprovar documento" />
+    <bpmn:exclusiveGateway id="Gateway_AprovFinal" name="Aprovado?" />
+    <bpmn:task id="Task_GerarDocFinal" name="Gerar PDF assinável" />
+    <bpmn:task id="Task_PublicarSEI" name="Publicar no SEI" />
+    <bpmn:task id="Task_RegistrarHistorico" name="Registrar histórico e versionamento" />
+    <bpmn:task id="Task_ComplementarInformacoes" name="Complementar informações" />
+    <bpmn:endEvent id="EndEvent_Publicado" name="Documento publicado" />
+    <bpmn:sequenceFlow id="F1" sourceRef="StartEvent_NovaDemanda" targetRef="Task_RegistrarDemanda" />
+    <bpmn:sequenceFlow id="F2" sourceRef="Task_RegistrarDemanda" targetRef="Task_ValidarCampos" />
+    <bpmn:sequenceFlow id="F3" sourceRef="Task_ValidarCampos" targetRef="Task_AplicarTemplate" />
+    <bpmn:sequenceFlow id="F4" sourceRef="Task_AplicarTemplate" targetRef="Task_ElaborarMinuta" />
+    <bpmn:sequenceFlow id="F5" sourceRef="Task_ElaborarMinuta" targetRef="Task_ChecklistConformidade" />
+    <bpmn:sequenceFlow id="F6" sourceRef="Task_ChecklistConformidade" targetRef="Task_VerificarLegislacao" />
+    <bpmn:sequenceFlow id="F7" sourceRef="Task_VerificarLegislacao" targetRef="Task_GerarRelatorio" />
+    <bpmn:sequenceFlow id="F8" sourceRef="Task_GerarRelatorio" targetRef="Task_RevisarDoc" />
+    <bpmn:sequenceFlow id="F13" sourceRef="Task_CorrigirNaoConf" targetRef="Task_RevisarDoc" />
+    <bpmn:sequenceFlow id="F17" sourceRef="Task_ComplementarInformacoes" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:sequenceFlow id="F18" sourceRef="Task_Aprovar" targetRef="Gateway_AprovFinal" />
+    <bpmn:sequenceFlow id="F19_yes" name="Sim" sourceRef="Gateway_AprovFinal" targetRef="Task_GerarDocFinal" />
+    <bpmn:sequenceFlow id="F19_no" name="Não" sourceRef="Gateway_AprovFinal" targetRef="Task_CorrigirNaoConf" />
+    <bpmn:sequenceFlow id="F20" sourceRef="Task_GerarDocFinal" targetRef="Task_PublicarSEI" />
+    <bpmn:sequenceFlow id="F21" sourceRef="Task_PublicarSEI" targetRef="Task_RegistrarHistorico" />
+    <bpmn:sequenceFlow id="F22" sourceRef="Task_RegistrarHistorico" targetRef="EndEvent_Publicado" />
+  </bpmn:process>
+  <bpmn:process id="Process_Reitoria" name="Processo Reitoria" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Reitoria">
+      <bpmn:lane id="Lane_Procuradoria" name="Procuradoria Jurídica">
+        <bpmn:flowNodeRef>Task_AnalisarJuridica</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Parecer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SolicitarAjustes</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Auditoria" name="Auditoria Interna">
+        <bpmn:flowNodeRef>Task_VerificarConf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Conformidade</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:task id="Task_AnalisarJuridica" name="Realizar análise jurídica" />
+    <bpmn:exclusiveGateway id="Gateway_Parecer" name="Parecer aprovado?" />
+    <bpmn:task id="Task_SolicitarAjustes" name="Solicitar ajustes via Observantia" />
+    <bpmn:task id="Task_VerificarConf" name="Verificar conformidade final">
+      <bpmn:incoming>F11_yes</bpmn:incoming>
+      <bpmn:outgoing>F14</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Conformidade" name="Conforme?">
+      <bpmn:incoming>F14</bpmn:incoming>
+      <bpmn:outgoing>F15_yes</bpmn:outgoing>
+      <bpmn:outgoing>F15_no</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SolicitarAjustes" name="Solicitar ajustes via Observantia">
+      <bpmn:incoming>F11_no</bpmn:incoming>
+      <bpmn:outgoing>F12</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_AnalisarJuridica" name="Realizar análise jurídica">
+      <bpmn:incoming>F10</bpmn:incoming>
+      <bpmn:outgoing>F11</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Parecer" name="Parecer aprovado?">
+      <bpmn:incoming>F11</bpmn:incoming>
+      <bpmn:outgoing>F11_yes</bpmn:outgoing>
+      <bpmn:outgoing>F11_no</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="F10" sourceRef="Task_AnalisarJuridica" targetRef="Gateway_Parecer" />
+    <bpmn:sequenceFlow id="F11" sourceRef="Task_AnalisarJuridica" targetRef="Gateway_Parecer" />
+    <bpmn:sequenceFlow id="F11_yes" name="Sim" sourceRef="Gateway_Parecer" targetRef="Task_VerificarConf" />
+    <bpmn:sequenceFlow id="F11_no" name="Não" sourceRef="Gateway_Parecer" targetRef="Task_SolicitarAjustes" />
+    <bpmn:sequenceFlow id="F12" sourceRef="Task_SolicitarAjustes" targetRef="Task_SolicitarAjustes" />
+    <bpmn:sequenceFlow id="F14" sourceRef="Task_VerificarConf" targetRef="Gateway_Conformidade" />
+    <bpmn:sequenceFlow id="F15_yes" name="Sim" sourceRef="Gateway_Conformidade" targetRef="Gateway_Conformidade" />
+    <bpmn:sequenceFlow id="F15_no" name="Não" sourceRef="Gateway_Conformidade" targetRef="Gateway_Conformidade" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_IFPE">
+      <bpmndi:BPMNShape id="Participant_Campus_di" bpmnElement="Participant_Campus" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="3680" height="600" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Requisitante_di" bpmnElement="Lane_Requisitante" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="3650" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sistema_di" bpmnElement="Lane_Sistema" isHorizontal="true">
+        <dc:Bounds x="150" y="200" width="3650" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Coordenador_di" bpmnElement="Lane_Coordenador" isHorizontal="true">
+        <dc:Bounds x="150" y="350" width="3650" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Gestor_di" bpmnElement="Lane_Gestor" isHorizontal="true">
+        <dc:Bounds x="150" y="500" width="3650" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Reitoria_di" bpmnElement="Participant_Reitoria" isHorizontal="true">
+        <dc:Bounds x="120" y="720" width="3680" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Procuradoria_di" bpmnElement="Lane_Procuradoria" isHorizontal="true">
+        <dc:Bounds x="150" y="720" width="3650" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Auditoria_di" bpmnElement="Lane_Auditoria" isHorizontal="true">
+        <dc:Bounds x="150" y="870" width="3650" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_NovaDemanda_di" bpmnElement="StartEvent_NovaDemanda">
+        <dc:Bounds x="220" y="137" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RegistrarDemanda_di" bpmnElement="Task_RegistrarDemanda">
+        <dc:Bounds x="300" y="125" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidarCampos_di" bpmnElement="Task_ValidarCampos">
+        <dc:Bounds x="460" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AplicarTemplate_di" bpmnElement="Task_AplicarTemplate">
+        <dc:Bounds x="620" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ElaborarMinuta_di" bpmnElement="Task_ElaborarMinuta">
+        <dc:Bounds x="780" y="385" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ChecklistConformidade_di" bpmnElement="Task_ChecklistConformidade">
+        <dc:Bounds x="940" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_VerificarLegislacao_di" bpmnElement="Task_VerificarLegislacao">
+        <dc:Bounds x="1100" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GerarRelatorio_di" bpmnElement="Task_GerarRelatorio">
+        <dc:Bounds x="1260" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RevisarDoc_di" bpmnElement="Task_RevisarDoc">
+        <dc:Bounds x="1420" y="385" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AnalisarJuridica_di" bpmnElement="Task_AnalisarJuridica">
+        <dc:Bounds x="1580" y="760" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Parecer_di" bpmnElement="Gateway_Parecer" isMarkerVisible="true">
+        <dc:Bounds x="1745" y="765" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SolicitarAjustes_di" bpmnElement="Task_SolicitarAjustes">
+        <dc:Bounds x="1840" y="760" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CorrigirNaoConf_di" bpmnElement="Task_CorrigirNaoConf">
+        <dc:Bounds x="2140" y="385" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_VerificarConf_di" bpmnElement="Task_VerificarConf">
+        <dc:Bounds x="2020" y="910" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotificarPendencias_di" bpmnElement="Task_NotificarPendencias">
+        <dc:Bounds x="2540" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Aprovar_di" bpmnElement="Task_Aprovar">
+        <dc:Bounds x="2380" y="560" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AprovFinal_di" bpmnElement="Gateway_AprovFinal" isMarkerVisible="true">
+        <dc:Bounds x="2565" y="565" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2563" y="615" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GerarDocFinal_di" bpmnElement="Task_GerarDocFinal">
+        <dc:Bounds x="3060" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PublicarSEI_di" bpmnElement="Task_PublicarSEI">
+        <dc:Bounds x="3220" y="560" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RegistrarHistorico_di" bpmnElement="Task_RegistrarHistorico">
+        <dc:Bounds x="3400" y="235" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Publicado_di" bpmnElement="EndEvent_Publicado">
+        <dc:Bounds x="3582" y="572" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ComplementarInformacoes_di" bpmnElement="Task_ComplementarInformacoes">
+        <dc:Bounds x="2750" y="125" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Conformidade_di" bpmnElement="Gateway_Conformidade" isMarkerVisible="true">
+        <dc:Bounds x="2225" y="915" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2223" y="965" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F1_di" bpmnElement="F1">
+        <di:waypoint x="256" y="155" />
+        <di:waypoint x="300" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F2_di" bpmnElement="F2">
+        <di:waypoint x="420" y="155" />
+        <di:waypoint x="440" y="155" />
+        <di:waypoint x="440" y="265" />
+        <di:waypoint x="460" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F3_di" bpmnElement="F3">
+        <di:waypoint x="580" y="265" />
+        <di:waypoint x="620" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F4_di" bpmnElement="F4">
+        <di:waypoint x="740" y="265" />
+        <di:waypoint x="760" y="265" />
+        <di:waypoint x="760" y="415" />
+        <di:waypoint x="780" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F5_di" bpmnElement="F5">
+        <di:waypoint x="900" y="415" />
+        <di:waypoint x="920" y="415" />
+        <di:waypoint x="920" y="265" />
+        <di:waypoint x="940" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F6_di" bpmnElement="F6">
+        <di:waypoint x="1060" y="265" />
+        <di:waypoint x="1100" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F7_di" bpmnElement="F7">
+        <di:waypoint x="1220" y="265" />
+        <di:waypoint x="1260" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F8_di" bpmnElement="F8">
+        <di:waypoint x="1380" y="265" />
+        <di:waypoint x="1400" y="265" />
+        <di:waypoint x="1400" y="415" />
+        <di:waypoint x="1420" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CampusToReitoria1_di" bpmnElement="Flow_CampusToReitoria1">
+        <di:waypoint x="1480" y="445" />
+        <di:waypoint x="1480" y="790" />
+        <di:waypoint x="1580" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F10_di" bpmnElement="F10">
+        <di:waypoint x="1700" y="790" />
+        <di:waypoint x="1745" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F11_yes_di" bpmnElement="F11_yes">
+        <di:waypoint x="1770" y="815" />
+        <di:waypoint x="1770" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F11_no_di" bpmnElement="F11_no">
+        <di:waypoint x="1795" y="790" />
+        <di:waypoint x="1840" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReitoriaToAuditoria_di" bpmnElement="Flow_ReitoriaToAuditoria">
+        <di:waypoint x="1900" y="760" />
+        <di:waypoint x="1900" y="415" />
+        <di:waypoint x="2140" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReitoriaToAuditoria2_di" bpmnElement="Flow_ReitoriaToAuditoria2">
+        <di:waypoint x="1770" y="870" />
+        <di:waypoint x="1770" y="940" />
+        <di:waypoint x="2020" y="940" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F13_di" bpmnElement="F13">
+        <di:waypoint x="2140" y="415" />
+        <di:waypoint x="1540" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F14_di" bpmnElement="F14">
+        <di:waypoint x="2140" y="940" />
+        <di:waypoint x="2225" y="940" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AuditoriaToGestor_di" bpmnElement="Flow_AuditoriaToGestor">
+        <di:waypoint x="2250" y="915" />
+        <di:waypoint x="2250" y="590" />
+        <di:waypoint x="2380" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotificacaoRequisitante_di" bpmnElement="Flow_NotificacaoRequisitante">
+        <di:waypoint x="2600" y="235" />
+        <di:waypoint x="2600" y="155" />
+        <di:waypoint x="2750" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F16_di" bpmnElement="F16">
+        <di:waypoint x="2660" y="265" />
+        <di:waypoint x="2680" y="265" />
+        <di:waypoint x="2680" y="155" />
+        <di:waypoint x="2750" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F17_di" bpmnElement="F17">
+        <di:waypoint x="2870" y="155" />
+        <di:waypoint x="2980" y="155" />
+        <di:waypoint x="2980" y="415" />
+        <di:waypoint x="2260" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F18_di" bpmnElement="F18">
+        <di:waypoint x="2500" y="590" />
+        <di:waypoint x="2565" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F19_yes_di" bpmnElement="F19_yes">
+        <di:waypoint x="2590" y="565" />
+        <di:waypoint x="2590" y="320" />
+        <di:waypoint x="3120" y="320" />
+        <di:waypoint x="3120" y="295" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2596" y="540" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F19_no_di" bpmnElement="F19_no">
+        <di:waypoint x="2615" y="590" />
+        <di:waypoint x="2690" y="590" />
+        <di:waypoint x="2690" y="650" />
+        <di:waypoint x="2200" y="650" />
+        <di:waypoint x="2200" y="445" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2665" y="570" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F20_di" bpmnElement="F20">
+        <di:waypoint x="3180" y="265" />
+        <di:waypoint x="3200" y="265" />
+        <di:waypoint x="3200" y="590" />
+        <di:waypoint x="3220" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F21_di" bpmnElement="F21">
+        <di:waypoint x="3340" y="590" />
+        <di:waypoint x="3370" y="590" />
+        <di:waypoint x="3370" y="265" />
+        <di:waypoint x="3400" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F22_di" bpmnElement="F22">
+        <di:waypoint x="3520" y="265" />
+        <di:waypoint x="3551" y="265" />
+        <di:waypoint x="3551" y="590" />
+        <di:waypoint x="3582" y="590" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
